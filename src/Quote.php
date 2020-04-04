@@ -16,13 +16,14 @@ namespace League\CommonMark\Ext\SmartPunct;
 
 use League\CommonMark\Inline\Element\AbstractStringContainer;
 
-final class Quote extends AbstractStringContainer
-{
-    public const DOUBLE_QUOTE = '"';
-    public const DOUBLE_QUOTE_OPENER = '“';
-    public const DOUBLE_QUOTE_CLOSER = '”';
+@trigger_error('league/commonmark-ext-smartpunct is deprecated; use League\CommonMark\Extension\SmartPunct\Quote from league/commonmark 1.3+ instead', E_USER_DEPRECATED);
+class_alias('League\CommonMark\Extension\SmartPunct\Quote', 'League\CommonMark\Ext\SmartPunct\Quote');
 
-    public const SINGLE_QUOTE = "'";
-    public const SINGLE_QUOTE_OPENER = '‘';
-    public const SINGLE_QUOTE_CLOSER = '’';
+if (false) {
+    /**
+     * @deprecated The league/commonmark-ext-smartpunct extension is now deprecated. All functionality has been moved into league/commonmark 1.3+, so use that instead.
+     */
+    final class Quote extends AbstractStringContainer
+    {
+    }
 }

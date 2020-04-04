@@ -15,12 +15,24 @@
 namespace League\CommonMark\Ext\SmartPunct;
 
 use League\CommonMark\ElementRendererInterface;
+use League\CommonMark\Extension\SmartPunct\QuoteRenderer as CoreRenderer;
 use League\CommonMark\HtmlElement;
 use League\CommonMark\Inline\Element\AbstractInline;
 use League\CommonMark\Inline\Renderer\InlineRendererInterface;
 
+/**
+ * @deprecated The league/commonmark-ext-smartpunct extension is now deprecated. All functionality has been moved into league/commonmark 1.3+, so use that instead.
+ */
 final class QuoteRenderer implements InlineRendererInterface
 {
+    private $coreRenderer;
+
+    public function __construct()
+    {
+        @trigger_error(sprintf('league/commonmark-ext-smartpunct is deprecated; use %s from league/commonmark 1.3+ instead', CoreRenderer::class), E_USER_DEPRECATED);
+        $this->coreRenderer = new CoreRenderer();
+    }
+
     /**
      * @param AbstractInline           $inline
      * @param ElementRendererInterface $htmlRenderer
@@ -29,19 +41,6 @@ final class QuoteRenderer implements InlineRendererInterface
      */
     public function render(AbstractInline $inline, ElementRendererInterface $htmlRenderer)
     {
-        if (!$inline instanceof Quote) {
-            throw new \InvalidArgumentException(sprintf('Expected an instance of "%s", got "%s" instead', Quote::class, get_class($inline)));
-        }
-
-        // Handles unpaired quotes which remain after processing delimiters
-        if ($inline->getContent() === Quote::SINGLE_QUOTE) {
-            // Render as an apostrophe
-            return Quote::SINGLE_QUOTE_CLOSER;
-        } elseif ($inline->getContent() === Quote::DOUBLE_QUOTE) {
-            // Render as an opening quote
-            return Quote::DOUBLE_QUOTE_OPENER;
-        }
-
-        return $inline->getContent();
+        return $this->coreRenderer->render($inline, $htmlRenderer);
     }
 }

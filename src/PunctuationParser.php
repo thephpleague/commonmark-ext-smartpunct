@@ -14,18 +14,29 @@
 
 namespace League\CommonMark\Ext\SmartPunct;
 
-use League\CommonMark\Inline\Element\Text;
+use League\CommonMark\Extension\SmartPunct\PunctuationParser as CoreParser;
 use League\CommonMark\Inline\Parser\InlineParserInterface;
 use League\CommonMark\InlineParserContext;
 
+/**
+ * @deprecated The league/commonmark-ext-smartpunct extension is now deprecated. All functionality has been moved into league/commonmark 1.3+, so use that instead.
+ */
 class PunctuationParser implements InlineParserInterface
 {
+    private $coreParser;
+
+    public function __construct()
+    {
+        @trigger_error(sprintf('league/commonmark-ext-smartpunct is deprecated; use %s from league/commonmark 1.3+ instead', CoreParser::class), E_USER_DEPRECATED);
+        $this->coreParser = new CoreParser();
+    }
+
     /**
      * @return string[]
      */
     public function getCharacters(): array
     {
-        return ['-', '.'];
+        return $this->coreParser->getCharacters();
     }
 
     /**
@@ -35,41 +46,6 @@ class PunctuationParser implements InlineParserInterface
      */
     public function parse(InlineParserContext $inlineContext): bool
     {
-        $cursor = $inlineContext->getCursor();
-        $ch = $cursor->getCharacter();
-
-        // Ellipses
-        if ($ch === '.' && $matched = $cursor->match('/^\\.( ?\\.)\\1/')) {
-            $inlineContext->getContainer()->appendChild(new Text('…'));
-
-            return true;
-        }
-
-        // Em/En-dashes
-        elseif ($ch === '-' && $matched = $cursor->match('/^(?<!-)(-{2,})/')) {
-            $count = strlen($matched);
-            $en_dash = '–';
-            $en_count = 0;
-            $em_dash = '—';
-            $em_count = 0;
-            if ($count % 3 === 0) { // If divisible by 3, use all em dashes
-                $em_count = $count / 3;
-            } elseif ($count % 2 === 0) { // If divisible by 2, use all en dashes
-                $en_count = $count / 2;
-            } elseif ($count % 3 === 2) { // If 2 extra dashes, use en dash for last 2; em dashes for rest
-                $em_count = ($count - 2) / 3;
-                $en_count = 1;
-            } else { // Use en dashes for last 4 hyphens; em dashes for rest
-                $em_count = ($count - 4) / 3;
-                $en_count = 2;
-            }
-            $inlineContext->getContainer()->appendChild(new Text(
-                str_repeat($em_dash, $em_count) . str_repeat($en_dash, $en_count)
-            ));
-
-            return true;
-        }
-
-        return false;
+        return $this->coreParser->parse($inlineContext);
     }
 }

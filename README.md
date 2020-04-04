@@ -7,6 +7,12 @@
 [![Quality Score][ico-code-quality]][link-code-quality]
 [![Total Downloads][ico-downloads]][link-downloads]
 
+## DEPRECATED
+
+**This extension has been deprecated**.  All of its functionality now exists in [`league/commonmark`][link-league-commonmark] 1.3+ under the `League\CommonMark\Extension\SmartPunct` namespace, so you should upgrade to that version and use that bundled extension instead of this one.
+
+## Overview
+
 Intelligently converts ASCII quotes, dashes, and ellipses to their Unicode equivalents.  For use with the [`league/commonmark` Markdown parser for PHP](https://github.com/thephpleague/commonmark).
 
 For example, this Markdown...

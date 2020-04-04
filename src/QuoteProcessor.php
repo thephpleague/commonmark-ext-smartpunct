@@ -16,31 +16,22 @@ namespace League\CommonMark\Ext\SmartPunct;
 
 use League\CommonMark\Delimiter\DelimiterInterface;
 use League\CommonMark\Delimiter\Processor\DelimiterProcessorInterface;
+use League\CommonMark\Extension\SmartPunct\Quote;
+use League\CommonMark\Extension\SmartPunct\QuoteProcessor as CoreProcessor;
 use League\CommonMark\Inline\Element\AbstractStringContainer;
 
+/**
+ * @deprecated The league/commonmark-ext-smartpunct extension is now deprecated. All functionality has been moved into league/commonmark 1.3+, so use that instead.
+ */
 final class QuoteProcessor implements DelimiterProcessorInterface
 {
-    /** @var string */
-    private $normalizedCharacter;
+    /** @var CoreProcessor */
+    private $coreProcessor;
 
-    /** @var string */
-    private $openerCharacter;
-
-    /** @var string */
-    private $closerCharacter;
-
-    /**
-     * QuoteProcessor constructor.
-     *
-     * @param string $char
-     * @param string $opener
-     * @param string $closer
-     */
-    private function __construct(string $char, string $opener, string $closer)
+    private function __construct(CoreProcessor $coreProcessor)
     {
-        $this->normalizedCharacter = $char;
-        $this->openerCharacter = $opener;
-        $this->closerCharacter = $closer;
+        @trigger_error(sprintf('league/commonmark-ext-external-link is deprecated; use %s from league/commonmark 1.3+ instead', CoreProcessor::class), E_USER_DEPRECATED);
+        $this->coreProcessor = $coreProcessor;
     }
 
     /**
@@ -48,7 +39,7 @@ final class QuoteProcessor implements DelimiterProcessorInterface
      */
     public function getOpeningCharacter(): string
     {
-        return $this->normalizedCharacter;
+        return $this->coreProcessor->getOpeningCharacter();
     }
 
     /**
@@ -56,7 +47,7 @@ final class QuoteProcessor implements DelimiterProcessorInterface
      */
     public function getClosingCharacter(): string
     {
-        return $this->normalizedCharacter;
+        return $this->coreProcessor->getClosingCharacter();
     }
 
     /**
@@ -64,7 +55,7 @@ final class QuoteProcessor implements DelimiterProcessorInterface
      */
     public function getMinLength(): int
     {
-        return 1;
+        return $this->coreProcessor->getMinLength();
     }
 
     /**
@@ -72,7 +63,7 @@ final class QuoteProcessor implements DelimiterProcessorInterface
      */
     public function getDelimiterUse(DelimiterInterface $opener, DelimiterInterface $closer): int
     {
-        return 1;
+        return $this->coreProcessor->getDelimiterUse($opener, $closer);
     }
 
     /**
@@ -80,8 +71,7 @@ final class QuoteProcessor implements DelimiterProcessorInterface
      */
     public function process(AbstractStringContainer $opener, AbstractStringContainer $closer, int $delimiterUse)
     {
-        $opener->insertAfter(new Quote($this->openerCharacter));
-        $closer->insertBefore(new Quote($this->closerCharacter));
+        return $this->coreProcessor->process($opener, $closer, $delimiterUse);
     }
 
     /**
@@ -94,7 +84,7 @@ final class QuoteProcessor implements DelimiterProcessorInterface
      */
     public static function createDoubleQuoteProcessor(string $opener = Quote::DOUBLE_QUOTE_OPENER, string $closer = Quote::DOUBLE_QUOTE_CLOSER): self
     {
-        return new self(Quote::DOUBLE_QUOTE, $opener, $closer);
+        return new self(CoreProcessor::createDoubleQuoteProcessor($opener, $closer));
     }
 
     /**
@@ -107,6 +97,6 @@ final class QuoteProcessor implements DelimiterProcessorInterface
      */
     public static function createSingleQuoteProcessor(string $opener = Quote::SINGLE_QUOTE_OPENER, string $closer = Quote::SINGLE_QUOTE_CLOSER): self
     {
-        return new self(Quote::SINGLE_QUOTE, $opener, $closer);
+        return new self(CoreProcessor::createSingleQuoteProcessor($opener, $closer));
     }
 }

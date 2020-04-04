@@ -14,22 +14,33 @@
 
 namespace League\CommonMark\Ext\SmartPunct;
 
-use League\CommonMark\Delimiter\Delimiter;
+use League\CommonMark\Extension\SmartPunct\Quote;
+use League\CommonMark\Extension\SmartPunct\QuoteParser as CoreParser;
 use League\CommonMark\Inline\Parser\InlineParserInterface;
 use League\CommonMark\InlineParserContext;
-use League\CommonMark\Util\RegexHelper;
 
+/**
+ * @deprecated The league/commonmark-ext-smartpunct extension is now deprecated. All functionality has been moved into league/commonmark 1.3+, so use that instead.
+ */
 final class QuoteParser implements InlineParserInterface
 {
     public const DOUBLE_QUOTES = [Quote::DOUBLE_QUOTE, Quote::DOUBLE_QUOTE_OPENER, Quote::DOUBLE_QUOTE_CLOSER];
     public const SINGLE_QUOTES = [Quote::SINGLE_QUOTE, Quote::SINGLE_QUOTE_OPENER, Quote::SINGLE_QUOTE_CLOSER];
+
+    private $coreParser;
+
+    public function __construct()
+    {
+        @trigger_error(sprintf('league/commonmark-ext-smartpunct is deprecated; use %s from league/commonmark 1.3+ instead', CoreParser::class), E_USER_DEPRECATED);
+        $this->coreParser = new CoreParser();
+    }
 
     /**
      * @return string[]
      */
     public function getCharacters(): array
     {
-        return array_merge(self::DOUBLE_QUOTES, self::SINGLE_QUOTES);
+        return $this->coreParser->getCharacters();
     }
 
     /**
@@ -41,73 +52,6 @@ final class QuoteParser implements InlineParserInterface
      */
     public function parse(InlineParserContext $inlineContext): bool
     {
-        $cursor = $inlineContext->getCursor();
-        $normalizedCharacter = $this->getNormalizedQuoteCharacter($cursor->getCharacter());
-
-        $charBefore = $cursor->peek(-1);
-        if ($charBefore === null) {
-            $charBefore = "\n";
-        }
-
-        $cursor->advance();
-
-        $charAfter = $cursor->getCharacter();
-        if ($charAfter === null) {
-            $charAfter = "\n";
-        }
-
-        list($leftFlanking, $rightFlanking) = $this->determineFlanking($charBefore, $charAfter);
-        $canOpen = $leftFlanking && !$rightFlanking;
-        $canClose = $rightFlanking;
-
-        $node = new Quote($normalizedCharacter, ['delim' => true]);
-        $inlineContext->getContainer()->appendChild($node);
-
-        // Add entry to stack to this opener
-        $inlineContext->getDelimiterStack()->push(new Delimiter($normalizedCharacter, 1, $node, $canOpen, $canClose));
-
-        return true;
-    }
-
-    /**
-     * @param string $character
-     *
-     * @return string|null
-     */
-    private function getNormalizedQuoteCharacter($character)
-    {
-        if (in_array($character, self::DOUBLE_QUOTES)) {
-            return Quote::DOUBLE_QUOTE;
-        } elseif (in_array($character, self::SINGLE_QUOTES)) {
-            return Quote::SINGLE_QUOTE;
-        }
-
-        return $character;
-    }
-
-    /**
-     * @param string $charBefore
-     * @param string $charAfter
-     *
-     * @return string[]
-     */
-    private function determineFlanking($charBefore, $charAfter)
-    {
-        $afterIsWhitespace = preg_match('/\pZ|\s/u', $charAfter);
-        $afterIsPunctuation = preg_match(RegexHelper::REGEX_PUNCTUATION, $charAfter);
-        $beforeIsWhitespace = preg_match('/\pZ|\s/u', $charBefore);
-        $beforeIsPunctuation = preg_match(RegexHelper::REGEX_PUNCTUATION, $charBefore);
-
-        $leftFlanking = !$afterIsWhitespace &&
-            !($afterIsPunctuation &&
-                !$beforeIsWhitespace &&
-                !$beforeIsPunctuation);
-
-        $rightFlanking = !$beforeIsWhitespace &&
-            !($beforeIsPunctuation &&
-                !$afterIsWhitespace &&
-                !$afterIsPunctuation);
-
-        return [$leftFlanking, $rightFlanking];
+        return $this->coreParser->parse($inlineContext);
     }
 }

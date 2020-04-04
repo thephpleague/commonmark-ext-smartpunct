@@ -14,36 +14,25 @@
 
 namespace League\CommonMark\Ext\SmartPunct;
 
-use League\CommonMark\Block\Element\Document;
-use League\CommonMark\Block\Element\Paragraph;
-use League\CommonMark\Block\Renderer as CoreBlockRenderer;
 use League\CommonMark\ConfigurableEnvironmentInterface;
 use League\CommonMark\Extension\ExtensionInterface;
-use League\CommonMark\Inline\Element\Text;
-use League\CommonMark\Inline\Renderer as CoreInlineRenderer;
+use League\CommonMark\Extension\SmartPunct\SmartPunctExtension as CoreExtension;
 
+/**
+ * @deprecated The league/commonmark-ext-smartpunct extension is now deprecated. All functionality has been moved into league/commonmark 1.3+, so use that instead.
+ */
 class SmartPunctExtension implements ExtensionInterface
 {
+    private $coreExtension;
+
+    public function __construct()
+    {
+        @trigger_error(sprintf('league/commonmark-ext-smartpunct is deprecated; use %s from league/commonmark 1.3+ instead', CoreExtension::class), E_USER_DEPRECATED);
+        $this->coreExtension = new CoreExtension();
+    }
+
     public function register(ConfigurableEnvironmentInterface $environment)
     {
-        $environment
-            ->addInlineParser(new QuoteParser(), 10)
-            ->addInlineParser(new PunctuationParser(), 0)
-
-            ->addDelimiterProcessor(QuoteProcessor::createDoubleQuoteProcessor(
-                $environment->getConfig('smartpunct/double_quote_opener', Quote::DOUBLE_QUOTE_OPENER),
-                $environment->getConfig('smartpunct/double_quote_closer', Quote::DOUBLE_QUOTE_CLOSER)
-            ))
-            ->addDelimiterProcessor(QuoteProcessor::createSingleQuoteProcessor(
-                $environment->getConfig('smartpunct/single_quote_opener', Quote::SINGLE_QUOTE_OPENER),
-                $environment->getConfig('smartpunct/single_quote_closer', Quote::SINGLE_QUOTE_CLOSER)
-            ))
-
-            ->addBlockRenderer(Document::class, new CoreBlockRenderer\DocumentRenderer(), 0)
-            ->addBlockRenderer(Paragraph::class, new CoreBlockRenderer\ParagraphRenderer(), 0)
-
-            ->addInlineRenderer(Quote::class, new QuoteRenderer(), 100)
-            ->addInlineRenderer(Text::class, new CoreInlineRenderer\TextRenderer(), 0)
-        ;
+        $this->coreExtension->register($environment);
     }
 }
